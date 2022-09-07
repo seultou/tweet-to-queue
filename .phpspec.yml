@@ -1,0 +1,6 @@
+suites:
+  app_suite:
+    namespace: App
+    spec_prefix: spec
+    src_path: '%paths.config%/src'
+    spec_path: '%paths.config%/tests'

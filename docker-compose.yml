@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+  ttq_db:
+    container_name: ttq_db
+    image: postgres:14.5-alpine
+    restart: always
+    networks:
+      - ttq_network
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_PORT=${DATABASE_PORT}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  ttq_adminer:
+    container_name: ttq_adminer
+    image: adminer
+    restart: always
+    depends_on:
+      - ttq_db
+    ports:
+      - 8080:8080
+
+  ttq_app:
+    container_name: ttq_app
+    build:
+      context: .
+    tty: true
+    depends_on:
+      - ttq_db
+    working_dir: /app
+    environment:
+      - DEBUG=true
+      - APP_ENV=${APP_ENV}
+      - APP_SECRET=${APP_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - DB_DRIVER='postgres'
+      - DB_HOST='${DATABASE_HOST}'
+      - DB_PORT='${DATABASE_PORT}'
+      - DB_USERNAME='${DATABASE_USERNAME}'
+      - DB_PASSWORD='${DATABASE_PASSWORD}'
+      - DB_DBNAME='${DATABASE_NAME}'
+    volumes:
+      - .:/app
+    networks:
+      - ttq_network
+
+  ttq_rabbitmq:
+    container_name: ttq_rabbitmq
+    image: rabbitmq:3.10.7-management
+    hostname: ${AMQP_HOST}
+    volumes:
+      - ./config/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - ttq_network
+
+volumes:
+  postgres-data:
+
+networks:
+  ttq_network:
