@@ -1,0 +1,7 @@
+test_index:
+    path: /test
+    controller: App\Controller\TestController
+
+kernel:
+    resource: ../src/Kernel.php
+    type: annotation

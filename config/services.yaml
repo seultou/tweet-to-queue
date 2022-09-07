@@ -1,0 +1,54 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    twitter_api_version: 2
+    twitter_api_key: '%env(TWITTER_API_KEY)%'
+    twitter_api_key_secret: '%env(TWITTER_API_KEY_SECRET)%'
+    twitter_api_bearer_token: '%env(TWITTER_API_BEARER_TOKEN)%'
+    amqpHost: '%env(AMQP_HOST)%'
+    amqpPort: '%env(AMQP_PORT)%'
+    amqpExchange: '%env(AMQP_EXCHANGE)%'
+    amqpRoutingKey: '%env(AMQP_ROUTING_KEY)%'
+    amqpUsername: '%env(AMQP_USERNAME)%'
+    amqpPassword: '%env(AMQP_PASSWORD)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $twitterApiVersion: '%twitter_api_version%'
+            $twitterApiKey: '%twitter_api_key%'
+            $twitterApiKeySecret: '%twitter_api_key_secret%'
+            $twitterApiBearerToken: '%twitter_api_bearer_token%'
+            $amqpHost: '%amqpHost%'
+            $amqpPort: '%amqpPort%'
+            $amqpExchange: '%amqpExchange%'
+            $amqpRoutingKey: '%amqpRoutingKey%'
+            $amqpUsername: '%amqpUsername%'
+            $amqpPassword: '%amqpPassword%'
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Twitter\Twitter: ~
+
+    App\Services\Messenger\RabbitMQ\Client: ~
+
+    App\Command\Console\CheckTwitterAccount:
+        tags: ['console.command']
+
+
+#    app.services.messenger.publish:
+#        class: App\Services\Messenger\RabbitMQ\Publish
+#        tags: [ 'messenger.message_handler' ]
